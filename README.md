@@ -21,6 +21,8 @@ sudo jetson_clocks
 
 ### Build the image
 
+The image layers JupyterLab and our entrypoint on top of the prebuilt `ultralytics/ultralytics:latest-jetson-jetpack6` image, which already ships with CUDA-enabled PyTorch, TensorRT bindings, and Ultralytics.
+
 From the repo root (`cellia/`):
 
 ```bash
@@ -28,7 +30,9 @@ t=cellia/jetson-jetpack6:latest
 sudo docker build --platform linux/arm64 -f docker/Dockerfile-jetson-jetpack6 -t $t .
 ```
 
-> The Dockerfile lives in `docker/`, but the build context must be the **repo root** (`.`) so `COPY . .` and `COPY docker/run.sh /run.sh` can see the whole tree.
+> The Dockerfile lives in `docker/`, but the build context is the **repo root** (`.`) so that `COPY docker/run.sh /run.sh` can see the entrypoint script.
+
+First build will pull the ~8 GB base image; subsequent builds are fast (~1–2 min) since only the Jupyter layer changes.
 
 ### Set the JupyterLab password
 
