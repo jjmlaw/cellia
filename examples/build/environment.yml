@@ -1,0 +1,17 @@
+name: fastai
+channels:
+  - defaults
+  - fastai
+  - nvidia
+  - pytorch
+dependencies:
+  - click
+  - cudatoolkit=11.1
+  - fastbook
+  - fastcore
+  - python>=3.6
+  - pytorch>=1.8
+  - torchvision
+  - pip
+  - pip:
+      - -r file:requirements.txt

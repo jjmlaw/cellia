@@ -1,0 +1,15 @@
+# Secrets / local config — never commit
+.env
+.env.local
+*.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# OS
+.DS_Store
