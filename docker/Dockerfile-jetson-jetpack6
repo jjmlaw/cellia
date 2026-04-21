@@ -40,8 +40,21 @@ RUN uv pip install --system \
     https://github.com/ultralytics/assets/releases/download/v0.0.0/torchvision-0.20.0a0+afc54f7-cp310-cp310-linux_aarch64.whl
 RUN uv pip install --system -e ".[export]"
 
+# Install JupyterLab for interactive benchmarking
+RUN uv pip install --system jupyterlab notebook ipywidgets ipykernel
+
+# Create /storage and /notebooks mount points (bind-mounted from host at runtime)
+RUN mkdir -p /storage /notebooks && chmod -R a+w /storage /notebooks
+
+# Entrypoint: prepares /storage and launches JupyterLab
+COPY docker/run.sh /run.sh
+RUN chmod +x /run.sh
+
 # Remove extra build files
 RUN rm -rf *.whl /root/.config/Ultralytics/persistent_cache.json
+
+EXPOSE 9443
+CMD ["/run.sh"]
 
 # Usage Examples -------------------------------------------------------------------------------------------------------
 
@@ -54,5 +67,11 @@ RUN rm -rf *.whl /root/.config/Ultralytics/persistent_cache.json
 # Pull and Run
 # t=ultralytics/ultralytics:latest-jetson-jetpack6 && sudo docker pull $t && sudo docker run -it --ipc=host $t
 
-# Pull and Run with NVIDIA runtime
-# t=ultralytics/ultralytics:latest-jetson-jetpack6 && sudo docker pull $t && sudo docker run -it --ipc=host --runtime=nvidia $t
+# Pull and Run with NVIDIA runtime, /storage + /notebooks bind mounts, Jupyter port, and password from .env
+# cp .env.example .env   # then edit .env to set JUPYTER_PASSWORD
+# t=ultralytics/ultralytics:latest-jetson-jetpack6 && sudo docker pull $t && sudo docker run -it --ipc=host --runtime=nvidia \
+#   -p 9443:9443 \
+#   --env-file .env \
+#   -v /storage:/storage \
+#   -v $(pwd)/notebooks:/notebooks \
+#   $t
