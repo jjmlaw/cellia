@@ -29,41 +29,49 @@ Benchmarking environment for YOLOv12 on NVIDIA Jetson (JetPack 6), running insid
 
 | Host port | Container port | Purpose |
 |-----------|----------------|---------|
-| 8888      | 8888           | JupyterLab server |
+| 9443      | 9443           | JupyterLab server (password protected) |
 | 6006      | 6006           | TensorBoard (optional, for training/eval curves) |
 
-Launch with `-p 8888:8888 -p 6006:6006`. Bind Jupyter to `0.0.0.0` and run `--no-browser` since the container is headless.
+Launch with `-p 9443:9443 -p 6006:6006`. Jupyter binds `0.0.0.0` and runs `--no-browser` since the container is headless.
 
 ## Mounted volumes
 
-| Host path                  | Container path                  | Mode | Purpose |
-|----------------------------|---------------------------------|------|---------|
-| `./notebooks`              | `/ultralytics/notebooks`        | rw   | Jupyter notebooks — persisted across container restarts |
-| `./results`                | `/ultralytics/results`          | rw   | Benchmark CSVs, plots, tegrastats logs |
-| `./datasets`               | `/ultralytics/datasets`         | rw   | COCO val2017 and any custom eval sets (downloaded once, reused) |
-| `./weights`                | `/ultralytics/weights`          | rw   | `.pt` checkpoints for YOLOv12 n/s/m/l/x |
-| `./engines`                | `/ultralytics/engines`          | rw   | TensorRT `.engine` files — **device-specific**, do not share across Jetson variants |
-| `/tmp/argus_socket`        | `/tmp/argus_socket`             | rw   | (Optional) CSI camera access via libargus |
-| `/etc/localtime`           | `/etc/localtime`                | ro   | Match host timezone for log timestamps |
+| Host path                  | Container path    | Mode | Purpose |
+|----------------------------|-------------------|------|---------|
+| `/storage`                 | `/storage`        | rw   | Persistent workspace: datasets, results, TRT engines, downloaded weights |
+| `$PWD/notebooks`           | `/notebooks`      | rw   | Jupyter notebooks (tracked in the repo, bind-mounted so edits persist) |
+| `/tmp/argus_socket`        | `/tmp/argus_socket` | rw | (Optional) CSI camera access via libargus |
+| `/etc/localtime`           | `/etc/localtime`  | ro   | Match host timezone for log timestamps |
+
+TensorRT `.engine` files are device- and TRT-version-specific — build them on the target Jetson and keep them under `/storage/engines/<device>/`. Do not share engines across Jetson variants.
+
+## Secrets
+
+The JupyterLab password is supplied via `docker/.env` (gitignored). Copy `docker/.env.example` to `docker/.env`, set `JUPYTER_PASSWORD`, and pass `--env-file docker/.env` to `docker run`. The entrypoint hashes the password at startup; nothing is persisted inside the image.
 
 ### Runtime flags
 
 - `--runtime=nvidia` — required for GPU access
 - `--ipc=host` — required for PyTorch multi-process dataloaders (shared memory)
-- `--network=host` *or* explicit `-p` mappings — pick one; host networking is simpler on a trusted LAN
+- `--env-file docker/.env` — loads `JUPYTER_PASSWORD` (required)
+- `-p 9443:9443` — explicit port publish (alternative: `--network=host` on a trusted LAN)
 - `--name cellia-bench` — stable name for `docker exec` into a running session
 
 ### Example run command
 
 ```bash
-t=ultralytics/ultralytics:latest-jetson-jetpack6
+t=cellia/jetson-jetpack6:latest
 sudo docker run -it --rm \
   --runtime=nvidia --ipc=host \
-  -p 8888:8888 -p 6006:6006 \
-  -v $PWD/notebooks:/ultralytics/notebooks \
-  -v $PWD/results:/ultralytics/results \
-  -v $PWD/datasets:/ultralytics/datasets \
-  -v $PWD/weights:/ultralytics/weights \
-  -v $PWD/engines:/ultralytics/engines \
+  -p 9443:9443 -p 6006:6006 \
+  --env-file docker/.env \
+  -v /storage:/storage \
+  -v $PWD/notebooks:/notebooks \
   --name cellia-bench $t
+```
+
+Build from the repo root with the Dockerfile in `docker/`:
+
+```bash
+sudo docker build --platform linux/arm64 -f docker/Dockerfile-jetson-jetpack6 -t $t .
 ```
