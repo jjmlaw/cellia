@@ -19,6 +19,6 @@ jupyter lab \
     --port=9443 \
     --no-browser \
     --allow-root \
-    --notebook-dir=/storage \
+    --notebook-dir=/cellia \
     --ServerApp.token='' \
     --ServerApp.password="$HASHED_PASSWORD"

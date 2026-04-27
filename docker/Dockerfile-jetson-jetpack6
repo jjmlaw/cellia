@@ -34,5 +34,5 @@ CMD ["/run.sh"]
 #   -p 9443:9443 \
 #   --env-file docker/.env \
 #   -v /storage:/storage \
-#   -v $(pwd)/notebooks:/notebooks \
+#   -v $(pwd):/cellia \
 #   --name cellia-bench $t

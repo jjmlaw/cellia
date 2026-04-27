@@ -63,7 +63,7 @@ sudo docker run -it --rm \
   -p 9443:9443 \
   --env-file docker/.env \
   -v /storage:/storage \
-  -v $(pwd)/notebooks:/notebooks \
+  -v $(pwd):/cellia \
   --name cellia-bench $t
 ```
 
@@ -74,7 +74,7 @@ Flags explained:
 - `-p 9443:9443` — JupyterLab port (host:container)
 - `--env-file docker/.env` — loads `JUPYTER_PASSWORD` (and any other env) from the gitignored `docker/.env`
 - `-v /storage:/storage` — persistent workspace (datasets, results, TRT engines)
-- `-v $(pwd)/notebooks:/notebooks` — your notebooks, editable from the host
+- `-v $(pwd):/cellia` — repo root mounted at `/cellia` (Jupyter starts here, so `scripts/` and `notebooks/` are visible side-by-side)
 
 ### Verify the CUDA install
 

@@ -38,7 +38,7 @@ Launch with `-p 9443:9443 -p 6006:6006`. Jupyter binds `0.0.0.0` and runs `--no-
 | Host path                  | Container path    | Mode | Purpose |
 |----------------------------|-------------------|------|---------|
 | `/storage`                 | `/storage`        | rw   | Persistent workspace: datasets, results, TRT engines, downloaded weights |
-| `$PWD/notebooks`           | `/notebooks`      | rw   | Jupyter notebooks (tracked in the repo, bind-mounted so edits persist) |
+| `$PWD` (repo root)         | `/cellia`         | rw   | Repo root, mounted so `scripts/` and `notebooks/` are editable from the host; Jupyter's working directory |
 | `/tmp/argus_socket`        | `/tmp/argus_socket` | rw | (Optional) CSI camera access via libargus |
 | `/etc/localtime`           | `/etc/localtime`  | ro   | Match host timezone for log timestamps |
 
@@ -65,7 +65,7 @@ sudo docker run -it --rm \
   -p 9443:9443 -p 6006:6006 \
   --env-file docker/.env \
   -v /storage:/storage \
-  -v $PWD/notebooks:/notebooks \
+  -v $PWD:/cellia \
   --name cellia-bench $t
 ```
 
