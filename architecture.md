@@ -74,3 +74,14 @@ Build from the repo root with the Dockerfile in `docker/`:
 ```bash
 sudo docker build --platform linux/arm64 -f docker/Dockerfile-jetson-jetpack6 -t $t .
 ```
+
+### Verifying the CUDA install
+
+After building, confirm PyTorch is the Jetson CUDA wheel and can reach the GPU:
+
+```bash
+sudo docker run --rm --runtime=nvidia --ipc=host $t \
+  python3 -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'no-cuda')"
+```
+
+Expected: a version string ending in `+...nv24.08`, `True`, and a device name like `Orin`. If `torch.cuda.is_available()` returns `False` or the import raises `Torch not compiled with CUDA enabled`, the image was likely rebuilt from `nvcr.io/nvidia/l4t-jetpack:r36.4.0` and the `pip install -e ultralytics[export]` step re-resolved `torch` from PyPI, replacing the Jetson CUDA wheel with a CPU-only build. Layering on the prebuilt `ultralytics/ultralytics:latest-jetson-jetpack6` image (as this project's Dockerfile does) avoids that.

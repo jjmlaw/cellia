@@ -76,6 +76,29 @@ Flags explained:
 - `-v /storage:/storage` — persistent workspace (datasets, results, TRT engines)
 - `-v $(pwd)/notebooks:/notebooks` — your notebooks, editable from the host
 
+### Verify the CUDA install
+
+Before running benchmarks, confirm the container sees the Jetson GPU and that PyTorch is the CUDA-enabled Jetson build (not a CPU wheel from PyPI):
+
+```bash
+sudo docker run --rm --runtime=nvidia --ipc=host $t \
+  python3 -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'no-cuda')"
+```
+
+Expected output (device name varies by Jetson model):
+
+```
+2.5.0a0+872d972e41.nv24.08 True Orin
+```
+
+What to check:
+
+- Version string ends in `+...nv24.08` — confirms the Jetson CUDA wheel, not a generic PyPI build
+- `True` — PyTorch can reach the GPU
+- A device name (`Orin`, etc.) — the NVIDIA runtime is wired up correctly
+
+If you get `False` or `Torch not compiled with CUDA enabled`, either `--runtime=nvidia` was missing or the image was rebuilt from `l4t-jetpack` directly (which re-resolves torch from PyPI and clobbers the Jetson wheel — use the prebuilt `ultralytics/ultralytics:latest-jetson-jetpack6` base as this Dockerfile does).
+
 ### Access JupyterLab
 
 On container start, the server listens on port 9443 with token auth disabled and password auth enabled. From another machine on the LAN, open:
