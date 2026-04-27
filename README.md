@@ -2,7 +2,7 @@
 
 YOLOv12 benchmarking environment for NVIDIA Jetson (JetPack 6), packaged as a Docker container with JupyterLab for interactive throughput and accuracy experiments.
 
-See `architecture.md` for mount points, port mappings, and full requirements.
+See `docker_architecture.md` for mount points, port mappings, and full requirements.
 
 ## Jetson Docker container
 
