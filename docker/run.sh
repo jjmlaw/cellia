@@ -6,6 +6,8 @@ export SHELL=/bin/bash
 mkdir -p /storage/data
 rm -rf /storage/lost+found
 
+git config --global --add safe.directory /cellia
+
 if [ -z "$JUPYTER_PASSWORD" ]; then
     echo "ERROR: JUPYTER_PASSWORD environment variable must be set" >&2
     echo "Pass it at container start, e.g.:  docker run -e JUPYTER_PASSWORD=mysecret ..." >&2
