@@ -120,3 +120,37 @@ sudo docker stop cellia-bench
 ```
 
 (Or `Ctrl+C` in the terminal where it was launched — `--rm` will clean it up.)
+
+### Convenience aliases (`up` / `down`)
+
+For day-to-day use, define `up` and `down` as shell functions in your `~/.bashrc` (or `~/.zshrc`) on the Jetson. Functions are used instead of plain `alias` lines because the `docker run` command spans multiple lines.
+
+Add these to `~/.bashrc`:
+
+```bash
+# --- cellia benchmarking container ---
+export CELLIA_REPO="$HOME/path/to/cellia"   # adjust to where you cloned the repo
+export CELLIA_IMAGE="cellia/jetson-jetpack6:latest"
+
+up() {
+    sudo docker run -d --rm \
+        --ipc=host --runtime=nvidia \
+        -p 9443:9443 \
+        --env-file "$CELLIA_REPO/docker/.env" \
+        -v /storage:/storage \
+        -v "$CELLIA_REPO":/cellia \
+        --name cellia-bench \
+        "$CELLIA_IMAGE"
+}
+
+down() {
+    sudo docker stop cellia-bench
+}
+```
+
+Then reload your shell (`source ~/.bashrc`) and use:
+
+- `up`   — start the container detached; JupyterLab on `https://<jetson-ip>:9443`
+- `down` — stop the container (auto-removed by `--rm`)
+
+`up` runs **detached** (`-d`), so it returns to your prompt immediately. View logs with `sudo docker logs -f cellia-bench`. The functions work from any directory because they reference `$CELLIA_REPO` rather than `$(pwd)`.
