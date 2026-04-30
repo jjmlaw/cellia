@@ -15,8 +15,8 @@ Benchmarking environment for YOLOv12 on NVIDIA Jetson (JetPack 6), running insid
 ### Container image
 - Base: `ultralytics/ultralytics:latest-jetson-jetpack6` (prebuilt by Ultralytics — ships CUDA-enabled PyTorch 2.5, torchvision, onnxruntime-gpu 1.20, and Ultralytics already installed against JetPack 6.1)
 - Python 3.10 (system interpreter — do not use a venv, or TensorRT Python bindings from `/usr/lib/python3.10/dist-packages` will be shadowed)
-- JupyterLab, notebook, ipywidgets, ipykernel (added on top of the base)
-- matplotlib, pandas, seaborn for result visualization (install in notebooks as needed)
+- JupyterLab, notebook, ipywidgets, ipykernel, pandas (added on top of the base)
+- matplotlib, seaborn for result visualization (install in notebooks as needed)
 
 Building from `nvcr.io/nvidia/l4t-jetpack:r36.4.0` directly is fragile: `pip install -e ultralytics[export]` re-resolves `torch` against PyPI, which ships only CPU-only aarch64 wheels and clobbers the Jetson CUDA wheel. Layering on the prebuilt Ultralytics image sidesteps that.
 

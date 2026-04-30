@@ -9,9 +9,9 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_BREAK_SYSTEM_PACKAGES=1
 
-# JupyterLab for interactive benchmarking
+# JupyterLab for interactive benchmarking + pandas for results tables
 RUN python3 -m pip install --upgrade pip && \
-    python3 -m pip install jupyterlab notebook ipywidgets ipykernel
+    python3 -m pip install jupyterlab notebook ipywidgets ipykernel pandas
 
 # Bind-mount points (populated from host at runtime)
 RUN mkdir -p /storage /notebooks && chmod -R a+w /storage /notebooks
