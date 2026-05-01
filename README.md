@@ -19,6 +19,28 @@ sudo nvpmodel -m 0
 sudo jetson_clocks
 ```
 
+#### `nvpmodel` power modes (AGX Orin 64GB)
+
+`nvpmodel -m <id>` selects a preset that caps total module power, online CPU cores, and CPU/GPU/memory clocks. Pick the highest mode your thermals/PSU allow — benchmarks should run at `MAXN` for headline numbers, lower modes for deployment-realistic figures.
+
+| ID | Name | Power cap | CPU cores | Notes |
+|----|------|-----------|-----------|-------|
+| 0  | `MAXN`         | unlimited | 12 | All cores + max GPU/memory clocks. Default for benchmarking. Requires adequate cooling and the supplied PSU. |
+| 1  | `MODE_15W`     | 15 W  | 4  | Lowest preset. Useful as a deployed-edge worst-case. |
+| 2  | `MODE_30W`     | 30 W  | 8  | |
+| 3  | `MODE_50W`     | 50 W  | 8  | |
+| 4  | `MODE_30W_ALL` | 30 W  | 12 | All cores online but clocked down — favors many-thread workloads over single-thread. |
+
+Other Orin variants (Orin NX 16GB, Orin Nano 8GB) ship a different mode table — run `sudo nvpmodel -p --verbose` on the device to print the exact list.
+
+Inspect or change at runtime:
+
+```bash
+sudo nvpmodel -q            # show current mode id + name
+sudo nvpmodel -m 0          # switch to MAXN
+sudo nvpmodel -p --verbose  # list all modes for this Jetson model
+```
+
 ### Build the image
 
 The image layers JupyterLab and our entrypoint on top of the prebuilt `ultralytics/ultralytics:latest-jetson-jetpack6` image, which already ships with CUDA-enabled PyTorch, TensorRT bindings, and Ultralytics.
